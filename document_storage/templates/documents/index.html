@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Documents</title>
+</head>
+<body>
+  <ul>
+  {% for document in documents %}
+    <li><a href="{% url 'view_document' document_id=document.id %}">{{ document.name }}</a></li>
+  {% empty %}
+    <li>No documents.</li>
+  {% endfor %}
+  </ul>
+</body>
+</html>

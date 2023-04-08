@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Compare Versions</title>
+</head>
+<body>
+  <h1>Compare Versions</h1>
+  <h2>Current Version: {{ current_version }}</h2>
+  {% if previous_version %}
+    <h2>Previous Version: {{ previous_version }}</h2>
+    <h3>Changes:</h3>
+    {% if current_content != previous_content %}
+      <h4>Current Version:</h4>
+        <p>{{ current_content|linebreaks }}</p>
+      <h4>Previous Version:</h4>
+        <p>{{ previous_content|linebreaks }}</p>
+    {% else %}
+      <p>No changes</p>
+    {% endif %}
+  {% else %}
+    <p>No previous version</p>
+  {% endif %}
+</body>
+</html>

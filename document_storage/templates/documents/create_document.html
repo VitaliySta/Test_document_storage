@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Create Document</title>
+</head>
+<body>
+  <h1>Create Document</h1>
+  <form method="POST">
+    {% csrf_token %}
+    <label for="name">Name:</label>
+    <input type="text" name="name" id="name">
+    <br><br>
+    <label for="content">Content:</label>
+    <textarea name="content" id="content"></textarea>
+    <br><br>
+    <button type="submit">Save</button>
+    {% if error %}
+      <h4>{{ error }}</h4>
+    {% endif %}
+  </form>
+</body>
+</html>

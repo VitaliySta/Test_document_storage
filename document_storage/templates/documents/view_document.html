@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>View Document</title>
+</head>
+<body>
+  <h1>{{ document.name }}</h1>
+  <p>{{ current_version.content|linebreaks }}</p>
+  {% if document.is_deleted %}
+    <p>Document is deleted.</p>
+  {% else %}
+    <a href="{% url 'edit_document' document_id=document.id %}">Edit</a>
+    <a href="{% url 'delete_document' document_id=document.id %}">Delete</a>
+    <a href="{% url 'compare_versions' document_id=document.id %}">Compare Versions</a>
+  {% endif %}
+</body>
+</html>
