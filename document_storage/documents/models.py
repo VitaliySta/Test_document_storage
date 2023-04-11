@@ -11,6 +11,13 @@ class Document(models.Model):
     is_deleted = models.BooleanField(
         default=False,
     )
+    current_version = models.OneToOneField(
+        'DocumentVersion',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='current_version',
+    )
 
     def __str__(self):
         return self.name
@@ -31,4 +38,4 @@ class DocumentVersion(models.Model):
     )
 
     def __str__(self):
-        return f'{self.document} - {self.content}'
+        return f'{self.document} - {self.content[:30]}'

@@ -3,72 +3,59 @@ from django.shortcuts import get_object_or_404, redirect, render
 from .models import Document, DocumentVersion
 
 
-def create_document(request):
+def create_or_edit_document(request, document_id=None):
+
+    document = None
+    current_version = None
+
+    if document_id:
+        document = get_object_or_404(Document, id=document_id)
+        current_version = DocumentVersion.objects.filter(
+            document=document).latest('created_at')
 
     if request.method == 'POST':
         name = request.POST.get('name')
         content = request.POST.get('content')
 
-        if Document.objects.filter(name=name) or not name:
+        if not name or Document.objects.filter(name=name).exclude(
+                id=document_id).exists():
             context = {
-                'error': f'Error - Document named {name} exists!'
+                'document': document,
+                'current_version': current_version,
+                'error': f'Error - Document named {name} exists!',
             }
-            return render(request, 'documents/create_document.html', context)
+            return render(request, 'documents/edit_document.html', context)
 
-        document = Document(name=name)
-        current_version = DocumentVersion(document=document, content=content)
-        document.save()
-        current_version.save()
+        if document_id:
+            document.name = name
+            document.save()
+        else:
+            document, _ = Document.objects.get_or_create(name=name)
+
+        if current_version is None or current_version.content != content:
+            current_version = DocumentVersion.objects.create(
+                document=document, content=content)
+            document.current_version = current_version
+            document.save()
+
         return redirect('view_document', document_id=document.id)
+
+    if document_id:
+        context = {
+            'document': document,
+            'current_version': current_version,
+        }
+        return render(request, 'documents/edit_document.html', context)
     return render(request, 'documents/create_document.html')
 
 
 def view_document(request, document_id):
 
     document = get_object_or_404(Document, id=document_id)
-    current_version = DocumentVersion.objects.filter(document=document).latest(
-        'created_at'
-    )
     context = {
         'document': document,
-        'current_version': current_version,
     }
     return render(request, 'documents/view_document.html', context)
-
-
-def edit_document(request, document_id):
-
-    document = get_object_or_404(Document, id=document_id)
-    current_version = DocumentVersion.objects.filter(document=document).latest(
-        'created_at'
-    )
-    if request.method == 'POST':
-        name = request.POST.get('name')
-        content = request.POST.get('content')
-
-        if document.name != name:
-
-            if Document.objects.filter(name=name) or not name:
-                context = {
-                    'document': document,
-                    'current_version': current_version,
-                    'error': f'Error - Document named {name} exists!',
-                }
-                return render(request, 'documents/edit_document.html', context)
-
-            document.name = name
-            document.save()
-
-        if current_version.content != content:
-            doc = DocumentVersion(document=document, content=content)
-            doc.save()
-
-        return redirect('view_document', document_id=document.id)
-    context = {
-        'document': document,
-        'current_version': current_version,
-    }
-    return render(request, 'documents/edit_document.html', context)
 
 
 def delete_document(request, document_id):
@@ -83,7 +70,7 @@ def compare_versions(request, document_id):
 
     document = Document.objects.get(id=document_id)
     doc_versions = DocumentVersion.objects.filter(document=document)
-    current_version = doc_versions.latest('created_at')
+    current_version = document.current_version
     if len(doc_versions) > 1:
         previous_version = doc_versions.exclude(id=current_version.id).latest(
             'created_at'

@@ -10,6 +10,7 @@ class DocumentAdmin(admin.ModelAdmin):
         'id',
         'name',
         'is_deleted',
+        'current_version',
     )
     search_fields = (
         'name',

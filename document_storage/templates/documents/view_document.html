@@ -5,7 +5,7 @@
 </head>
 <body>
   <h1>{{ document.name }}</h1>
-  <p>{{ current_version.content|linebreaks }}</p>
+  <p>{{ document.current_version.content|linebreaks }}</p>
   {% if document.is_deleted %}
     <p>Document is deleted.</p>
   {% else %}
